@@ -8,9 +8,14 @@ using namespace std;
 
 
 class Revolver {
-
-	bool cylinder[6] = { 0, 0, 0, 0, 0, 0 };
 public:
+	int position = 0;
+
+	Revolver() {
+
+	}
+		bool cylinder[6] = { 0, 0, 0, 0, 0, 0 };
+
 	int spin() {
 		cout << "Spin...";
 		Sleep(1000);
@@ -26,12 +31,11 @@ public:
 		bool loaded;
 		cout << "Es werden " << anzahlPatronen << " geladen \n";
 		for (int i = 0; i < anzahlPatronen; i++) {
-			int chamber = 0;
 			loaded = false;
 			do {
-				chamber = spin();
-				if (cylinder[chamber] == 0) {
-					cylinder[chamber] = 1;
+				position = spin();
+				if (cylinder[position] == 0) {
+					cylinder[position] = 1;
 					loaded = true;
 					cout << "round loaded...\n";
 				}
@@ -50,6 +54,7 @@ public:
 		else {
 			cout << "lucky..\n";
 		}
+		position++;
 	}
 };
 
