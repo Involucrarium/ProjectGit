@@ -10,15 +10,12 @@ using namespace std;
 
 class Revolver {
 private:
-	int position;
-	bool cylinder[6] = { 0,0,0,0,0,0, };
-
-
+	int position = 0;
 
 public:
-	Revolver(int position) {
-		this->position = position;
-	}
+	Revolver() {}
+
+	bool cylinder[6] = { 0,0,0,0,0,0 };
 
 	int spin() {
 		cout << "Spin";
@@ -27,10 +24,11 @@ public:
 		Sleep(777);
 		cout << ".";
 		Sleep(777);
-		cout << ".";
+		cout << ". \n";
+		Sleep(777);
 		srand((unsigned int)time(NULL));
 		int num = (rand() % (5 - 0 + 1)) + 0;
-		cout << "chamber no. " << num;
+		cout << "Chamber no. " << num;
 		return num;
 	}
 
@@ -52,9 +50,8 @@ public:
 				}
 			} while (!loaded);
 		}
-		cout << "All rounds loaded...\n";
 	}
-public:
+
 	bool pullTrigger(int position) {
 		if (cylinder[position] == true) {
 			cout << "peng \n";
@@ -100,68 +97,75 @@ class Spiel {
 private:
 	int anzahlSpieler;
 	vector<Spieler> spielerliste;
+	Revolver boomstick;
 
 public:
+
 	Spiel(int anzahlSpieler) {
 		this->anzahlSpieler = anzahlSpieler;
 		string name = "";
 		for (int i = 0; i < anzahlSpieler; i++) {
 			cout << "Namen eintragen: " << "\n";
 			getline(cin, name);
-			spielerliste.push_back(Spieler(name, true));
+			this->spielerliste.push_back(Spieler(name, true));
 			name = "";
 		}
-		Revolver boomstick(0);
-		// reihenfolge shufflen
-		auto rng = default_random_engine{};
-		shuffle(begin(spielerliste), end(spielerliste), rng);
 
-		int versuche = 0;
-		int imKreis = 0;
-		bool gameOver = false;
-		boomstick.laden(1);
+	}
+	void play() {
+		int i = 0;
+		bool laden = true;
 		int position = 0;
-		while (!gameOver) {
-			for (int i = 0; i < anzahlSpieler; i++) {
-				if (versuche == 5 || spielerliste.size() == 1) {
-					gameOver = true;
-					break;
-				}
-				if (imKreis == anzahlSpieler) {
-					imKreis = 0;
-					i = 0;
-				}
-				Sleep(1000);
-				cout << "\n" << spielerliste.at(i).getName() << " pulls the trigger... \n";
-				Sleep(1000);
-				spielerliste.at(i).setAlive(boomstick.pullTrigger(position));
-				position++;
-				versuche++;
-				imKreis++;
-				if (!spielerliste.at(i).getAlive()) {
-					spielerliste.erase(spielerliste.begin() + i);
-					anzahlSpieler--;
-					imKreis--;
-				}
+		boomstick.laden(1);
+		while (spielerliste.size() > 1) {
+			if (i >= spielerliste.size()) {
+				i = 0;
 			}
+			Sleep(1000);
+			cout << "\n" << spielerliste.at(i).getName() << " pulls the trigger... \n";
+			Sleep(1000);
+			spielerliste.at(i).setAlive(boomstick.pullTrigger(position));
+			if (!spielerliste.at(i).getAlive()) {
+				WeLostOne(position, i);
+				position = -1;
+				i = -1;
+			}
+			position++;
+			i++;
 		}
+	}
+	void WeLostOne(int position, int who) {
+		// Spieler entfernen
+		spielerliste.erase(spielerliste.begin() + who);	
+		// Patronenhülse herausnehmen
+		boomstick.cylinder[position] = false;	
+		
+		// Neuladen wenn noch Spieler übrig sind und Liste neu mischen
+		if (spielerliste.size() > 1) {
+			boomstick.laden(1);	
+			shuffles(spielerliste);
+		}
+	}
+
+	void printWinner() {
 		cout << "Game Over, Survivor/s: \n";
 		for (int i = 0; i < spielerliste.size(); i++) {
 			cout << spielerliste.at(i).getName() << "\n";
+
 		}
 	}
+		void shuffles(vector<Spieler> spielerliste) {
+			auto rng = default_random_engine{};
+			shuffle(begin(spielerliste), end(spielerliste), rng);
+		}
 };
 
-int main() {
-	/*Revolver revolver1(0);
-	cout << "How many rounds should be loaded? \n";
-	int rounds;
-	cin >> rounds;
-	revolver1.laden(rounds);
-	revolver1.pullTrigger();
-	*/
+	int main() {
 
-	Spiel neuesSpiel(2);
-	system("pause");
-	return 0;
-}
+		Spiel neuesSpiel(3);
+		neuesSpiel.play();
+		neuesSpiel.printWinner();
+
+		system("pause");
+		return 0;
+	}
