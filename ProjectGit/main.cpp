@@ -5,6 +5,7 @@
 #include <ctime>
 #include <Windows.h>
 #include <algorithm>
+   
 using namespace std;
 
 
@@ -28,7 +29,7 @@ public:
 		Sleep(777);
 		srand((unsigned int)time(NULL));
 		int num = (rand() % (5 - 0 + 1)) + 0;
-		cout << "Chamber no. " << num;
+		cout << "Chamber ";
 		return num;
 	}
 
@@ -162,7 +163,7 @@ public:
 
 	int main() {
 
-		Spiel neuesSpiel(3);
+		Spiel neuesSpiel(2);
 		neuesSpiel.play();
 		neuesSpiel.printWinner();
 
